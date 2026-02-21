@@ -10,7 +10,7 @@ steps:
 
 - task: AWSCLI@1
   inputs:
-    awsCredentials: 'AWS-OIDC-Connection'
+    awsCredentials: 'aws-oidc'
     regionName: 'us-west-2'
     awsCommand: 'sts'
     awsSubCommand: 'get-caller-identity'
