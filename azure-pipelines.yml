@@ -1,65 +1,15 @@
-# Prints the Azure DevOps Organization GUID (instanceId)
-# and the corresponding ADO OIDC Provider URL for AWS federation.
-# Works when your pipeline source is GitHub.
-
-trigger: none  # run manually from ADO, or enable PR trigger if you prefer
+trigger:
+- main
 
 pool:
   vmImage: ubuntu-latest
 
-# IMPORTANT: In the pipeline UI, enable:
-# Project Settings -> Pipelines -> Settings -> "Allow scripts to access the OAuth token"
-# so $(System.AccessToken) works for the REST call.
-
 steps:
-  - script: |
-      set -euo pipefail
+- checkout: self
 
-      echo "Organization URL (from System.CollectionUri):"
-      echo "$(System.CollectionUri)"
-      echo
-
-      API_URL="$(System.CollectionUri)_apis/connectionData?api-version=5.0-preview"
-
-      echo "Calling: $API_URL"
-      # Install jq (for JSON parsing)
-      sudo apt-get update -y >/dev/null
-      sudo apt-get install -y jq >/dev/null
-
-      # Call ADO REST using the built-in OAuth token
-      RESP="$(curl -sS -H "Authorization: Bearer $(System.AccessToken)" "$API_URL")"
-
-      # Extract instanceId = Organization GUID
-      ORG_GUID="$(echo "$RESP" | jq -r '.instanceId')"
-
-      if [ -z "$ORG_GUID" ] || [ "$ORG_GUID" = "null" ]; then
-        echo "ERROR: Could not read instanceId from connectionData response."
-        echo "Response was:"
-        echo "$RESP"
-        exit 1
-      fi
-
-      PROVIDER_URL="https://vstoken.dev.azure.com/${ORG_GUID}"
-
-      echo
-      echo "=========================================="
-      echo "Azure DevOps Organization GUID (instanceId)"
-      echo "=========================================="
-      echo "$ORG_GUID"
-
-      echo
-      echo "=========================================="
-      echo "ADO OIDC Provider URL (for AWS IAM OIDC)  "
-      echo "=========================================="
-      echo "$PROVIDER_URL"
-
-      # Set output variables for later steps if needed
-      echo "##vso[task.setvariable variable=ADO_ORG_GUID;isOutput=true]$ORG_GUID"
-      echo "##vso[task.setvariable variable=ADO_OIDC_PROVIDER_URL;isOutput=true]$PROVIDER_URL"
-    displayName: "Get ADO Organization GUID & Provider URL"
-
-  - script: |
-      echo "You can reference these variables in later steps:"
-      echo "ADO_ORG_GUID=$(ADO_ORG_GUID)"
-      echo "ADO_OIDC_PROVIDER_URL=$(ADO_OIDC_PROVIDER_URL)"
-    displayName: "Show captured variables"
+- task: AWSCLI@1
+  inputs:
+    awsCredentials: 'AWS-OIDC-Connection'
+    regionName: 'us-west-2'
+    awsCommand: 'sts'
+    awsSubCommand: 'get-caller-identity'
