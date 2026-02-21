@@ -1,16 +1,27 @@
-trigger:
-- main
+# azure-pipelines.yml
+# Runs on SELF-HOSTED POOL (Default)
+# IMPORTANT: pool name must match exactly
+
+trigger: none   # manual run recommended for first test
 
 pool:
-  #vmImage: ubuntu-latest
-  name: Default
+  name: Default   # your self-hosted pool
+  demands:
+  - Agent.Name    # ensures agent is available
 
 steps:
-- checkout: self
+- script: |
+    echo "Running on self-hosted agent:"
+    echo "Agent name  : $(Agent.Name)"
+    echo "Agent pool  : $(Agent.JobStatus)"
+    echo "Machine     : $(Agent.MachineName)"
+  displayName: "Self-hosted agent check"
 
+# Example AWS step (requires AWS Toolkit extension)
 - task: AWSCLI@1
+  displayName: "STS Identity Test"
   inputs:
-    awsCredentials: 'aws-oidc'
-    regionName: 'us-west-2'
+    awsCredentials: 'aws-oidc'   # <-- must match your AWS service connection name
+    regionName: 'eu-west-2'
     awsCommand: 'sts'
     awsSubCommand: 'get-caller-identity'
