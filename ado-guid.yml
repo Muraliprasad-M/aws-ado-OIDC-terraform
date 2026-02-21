@@ -1,0 +1,15 @@
+
+# ado-print-oidc-issuer-from-env.yml
+# Purpose: Print your ADO OIDC issuer using the Organization GUID env var
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: |
+    echo "Organization GUID (SYSTEM_COLLECTIONID): $(SYSTEM_COLLECTIONID)"
+    echo "OIDC issuer URL:"
+    echo "https://vstoken.dev.azure.com/$(SYSTEM_COLLECTIONID)"
+  displayName: "Print ADO Organization GUID & OIDC issuer"
