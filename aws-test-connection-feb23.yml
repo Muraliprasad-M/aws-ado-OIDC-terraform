@@ -1,6 +1,6 @@
 trigger: none
 pool:
-  name: local-host-agent    # your self‑hosted pool
+  name: Default    # your self‑hosted pool
 
 steps:
 - task: AWSCLI@1
