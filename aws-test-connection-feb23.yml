@@ -1,0 +1,12 @@
+trigger: none
+pool:
+  name: Default    # your self‑hosted pool
+
+steps:
+- task: AWSCLI@1
+  displayName: "Verify AWS OIDC Federation"
+  inputs:
+    awsCredentials: 'aws-test'    # service connection name
+    regionName: 'eu-west-2'
+    awsCommand: 'sts'
+    awsSubCommand: 'get-caller-identity'
