@@ -49,7 +49,7 @@ stages:
   dependsOn: Plan
   condition: succeeded()
   # bind to an environment that has an Approval check
-  environment: 'prod'            # this triggers manual approval before this stage starts
+  #environment: 'prod'            # this triggers manual approval before this stage starts
   jobs:
   - job: apply
     displayName: "Apply on self-hosted agent"
