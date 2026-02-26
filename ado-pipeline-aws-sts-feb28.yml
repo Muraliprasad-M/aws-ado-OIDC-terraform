@@ -19,14 +19,6 @@ stages:
     displayName: "Plan on self-hosted agent"
     pool: { name: 'self-managed-ado-agent' }
     steps:
-
-   #- task: AWSCLI@1
-       #displayName: "STS identity (sanity)"
-       #inputs:
-         #awsCredentials: 'aws-ado-oidc-sc'     # your AWS service connection (OIDC)
-         #regionName: '$(aws_region)'
-         #awsCommand: 'sts get-caller-identity'
-
         - task: AWSCLI@1
   displayName: "STS who am I"
   inputs:
@@ -68,10 +60,11 @@ stages:
 
     - task: AWSCLI@1
       displayName: "STS identity (pre-apply)"
-      inputs:
-        awsCredentials: 'aws-ado-oidc-sc'
-        regionName: '$(aws_region)'
-        awsCommand: 'sts get-caller-identity'
+          inputs:
+    awsCredentials: 'aws-ado-oidc-sc'
+    regionName: 'eu-west-2'
+    awsCommand: 'sts'
+    awsSubCommand: 'get-caller-identity'
 
     - script: |
         terraform -chdir=$(tf_workdir) apply -auto-approve tfplan.out
